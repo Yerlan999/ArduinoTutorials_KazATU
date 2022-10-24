@@ -1,13 +1,16 @@
-int led = 3;
-const int analog_pin = A0;
+const int buzzer = 2; 
 
-void setup() {
-  pinMode(led, OUTPUT);
+void setup(){
+  pinMode(buzzer, OUTPUT); 
 }
 
-void loop() {
-  // readings = от 0 до 1023
-  int readings = analogRead(analog_pin);
-  // 1023/256 ~ 4
-  analogWrite(led, readings/4);
+void loop(){
+  tone(buzzer, 500); delay(1000);        
+  noTone(buzzer); delay(1000);
+
+  tone(buzzer, 1000); delay(1000);        
+  noTone(buzzer); delay(1000);
+
+  tone(buzzer, 1500); delay(1000);        
+  noTone(buzzer); delay(1000);
 }
