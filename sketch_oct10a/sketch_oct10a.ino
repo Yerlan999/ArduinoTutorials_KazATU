@@ -1,15 +1,12 @@
 #include <IRremote.h>
 
 int RECV_PIN = 7;
+
 const int red_pin = 9;
 const int green_pin = 10;
 const int blue_pin = 11;
 
-int red_brightness = 0;
-int green_brightness = 0;
-int blue_brightness = 0;
-
-int current_color = 0;
+int brightness = 0;
 
 IRrecv irrecv(RECV_PIN);
 
@@ -22,51 +19,19 @@ void setup()
   pinMode(blue_pin,OUTPUT);
     
   Serial.begin(9600);
-  irrecv.enableIRIn(); // Start the receiver
+  irrecv.enableIRIn();
 }
 
 
-void rbg_led(int red, int green, int blue){
-  red_brightness = red;
-  green_brightness = green;
-  blue_brightness = blue;
+void setRGBLed(int red_value, int green_value, int blue_value){
+  analogWrite(red_pin, red_value);
+  analogWrite(green_pin, green_value);
+  analogWrite(blue_pin, blue_value);
+}
+
+
+void changeBrightness(int increment){
   
-  if (red_brightness == 255){
-    current_color = 1;
-  }
-  else if (green_brightness == 255){
-    current_color = 2;
-  }
-  else if  (blue_brightness == 255){
-    current_color = 3;
-  }
-  else{
-    current_color = 0;
-  }
-  analogWrite(red_pin, red_brightness);
-  analogWrite(green_pin, green_brightness);
-  analogWrite(blue_pin, blue_brightness);
-}
-
-void decreaseORincrease_brightness(int increment){
-  if (current_color == 1){
-    red_brightness += increment;
-    analogWrite(red_pin, red_brightness);
-  }
-  else if (current_color == 2){
-    green_brightness += increment;
-    analogWrite(red_pin, green_brightness);    
-  }
-  else if (current_color == 3){
-    blue_brightness += increment;
-    analogWrite(red_pin, blue_brightness);    
-  }
-  else{
-    red_brightness += increment; green_brightness += increment; blue_brightness += increment;
-    analogWrite(red_pin, red_brightness); 
-    analogWrite(red_pin, green_brightness); 
-    analogWrite(red_pin, blue_brightness);    
-  }
 }
 
 void loop() {
@@ -74,34 +39,34 @@ void loop() {
     
     switch (results.value){
     
-    case 0xFF30CF:
+    case 0xFD08F7:
       Serial.println("1 is pressed");
-      rbg_led(255, 0, 0);
+      setRGBLed(255, 0, 0);
       break;
 
-    case 0xFF18E7:
+    case 0xFD8877:
       Serial.println("2 is pressed");
-      rbg_led(0, 255, 0);
+      setRGBLed(0, 255, 0);
       break;
     
-    case 0xFF7A85:
+    case 0xFD48B7:
       Serial.println("3 is pressed");
-      rbg_led(0, 0, 255);
+      setRGBLed(0, 0, 255);
       break;
 
-    case 0xFFA857:
+    case 0xFD807F:
       Serial.println("+ is pressed");
-      decreaseORincrease_brightness(100);
+      changeBrightness(100);
       break;    
 
-    case 0xFFE01F:
+    case 0xFD906F:
       Serial.println("- is pressed");
-      decreaseORincrease_brightness(-100);
+      changeBrightness(-100);
       break;    
 
-    case 0xFF906F:
+    case 0xFDB04F:
       Serial.println("EQ is pressed");
-      rbg_led(0, 0, 0);
+      setRGBLed(0, 0, 0);
       break; 
                 
     default:
@@ -109,7 +74,7 @@ void loop() {
       break;
     }
   
-    irrecv.resume(); // Receive the next value
+    irrecv.resume();
     
   }
   delay(100);
