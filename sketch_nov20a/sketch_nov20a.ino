@@ -6,7 +6,7 @@ const byte COLS = 4; // 4 столбца
 const int red_led = 2;
 const int green_led = 3;
 
-const String correct_password = "1997"; 
+const String correct_password = "1957"; 
 
 // Обозначение наименовании кнопок
 char hexaKeys[ROWS][COLS] = {
