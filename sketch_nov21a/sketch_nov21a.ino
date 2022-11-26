@@ -1,27 +1,11 @@
-#include <Stepper.h>
-#include <Servo.h>
-
-const int servoPin = 3;
- 
-const int X_pin = A0; 
-const int Y_pin = A1; 
-
-const int stepsPerRevolution = 2038;
-
-Stepper myStepper = Stepper(stepsPerRevolution, 8, 10, 9, 11);
-Servo servo;
+int led = 3;
+const int analog_pin = A3;
 
 void setup() {
-  pinMode(SW_pin, INPUT);
-  digitalWrite(SW_pin, HIGH);
-  servo.attach(servoPin);
+  pinMode(led, OUTPUT);
 }
 
 void loop() {
-  
-  servo.write(map(analogRead(X_pin), 0, 1023, 0, 255));
-  
-  myStepper.setSpeed(50);
-  myStepper.step(int((map(analogRead(Y_pin), 0, 1023, -2038, 2038)/360)*30));
-  
+  // конвертация от диапазона (0-1023) в диапазон (0-255)
+  analogWrite(led, map(analogRead(analog_pin), 0, 1023, 0, 255));
 }
