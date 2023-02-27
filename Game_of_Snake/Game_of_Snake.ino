@@ -1,3 +1,4 @@
+#include <TM74HC595Display.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Max72xxPanel.h>
@@ -21,6 +22,11 @@ int pinCS = 9;
 int numberOfHorizontalDisplays = 1;
 int numberOfVerticalDisplays = 1;
 
+int SCLK = 2;
+int RCLK = 3;
+int DIO = 4;
+
+TM74HC595Display disp(SCLK, RCLK, DIO);
 Max72xxPanel matrix = Max72xxPanel(pinCS, numberOfHorizontalDisplays, numberOfVerticalDisplays);
 
 // Функция для очистки матрицы
@@ -29,6 +35,27 @@ void clear_matrix(){
   for (int j = 0; j < 8; j++){
   matrix.drawPixel(i, j, LOW);}}
   matrix.write();
+}
+
+
+// Функция для заполнения матрицы
+void fill_matrix(){
+  for (int i = 0; i < 8; i++){ 
+  for (int j = 0; j < 8; j++){
+  matrix.drawPixel(i, j, HIGH);}}
+  matrix.write();
+}
+
+
+void game_over(){
+  clear_matrix();
+  delay(1000);
+  fill_matrix();
+  delay(1000);
+  clear_matrix();
+  delay(1000);
+  disp.digit4(0, 1);
+  game_speed = 200;
 }
 
 class Snake : public Printable{
@@ -65,7 +92,7 @@ class Snake : public Printable{
     
     public:
       Parts(){
-        Serial.println("Invoked");
+        
       };
           
     public:  
@@ -87,6 +114,8 @@ class Snake : public Printable{
   
       void clear_body(){
         delete[] parts;
+        lenght = 0;
+        add_part(4,4,true, true);
       }
   };
 
@@ -194,9 +223,9 @@ class AimScore {
     
     // Функция фиксации захвата цели
     void get_the_aim(){
-      Serial.println("Caught the aim");
       game_score++;
       game_speed-= 5;
+      disp.digit4(game_score, 1);
       add_aim_to_pool();
       has_aim = false;    
     }
@@ -227,6 +256,15 @@ void listen_events(){
   if ((snake.body.parts[snake.body.lenght-1].curr_coords[X] == got_aims_X.peek() && snake.body.parts[snake.body.lenght-1].curr_coords[Y] == got_aims_Y.peek())) snake.ready_to_prolong = true;
   // Хвост вышел из ячейки с целью
   if ((snake.body.parts[snake.body.lenght-1].old_coords[X] == got_aims_X.peek() || snake.body.parts[snake.body.lenght-1].old_coords[Y] == got_aims_Y.peek())) snake.add_part();
+
+  for (int i = 2; i < snake.body.lenght; i ++){
+    if (snake.body.parts[0].curr_coords[X] == snake.body.parts[i].curr_coords[X] && snake.body.parts[0].curr_coords[Y] == snake.body.parts[i].curr_coords[Y])
+    {
+      game_over();
+      aim.game_score = 0;
+      snake.body.clear_body();
+    }
+  }
 }
 
 void setup() {
@@ -235,6 +273,7 @@ void setup() {
   Serial.begin(9600);
   matrix.setIntensity(4);
   clear_matrix();
+  disp.digit4(0, 1);
 }
 
 void loop() {
@@ -242,7 +281,6 @@ void loop() {
   listen_events();
   if ((millis() - lastTime) > game_speed) {
     snake.advance();
-    Serial.println(snake.body.lenght);
     lastTime = millis();
   }
   snake.draw();
@@ -254,6 +292,5 @@ void loop() {
   aim.draw_aim();
     
   if (digitalRead(debug_button)==LOW){
-    Serial.println(snake);
   }
 }
