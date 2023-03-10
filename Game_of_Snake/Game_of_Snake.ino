@@ -168,7 +168,8 @@ class Snake : public Printable{
     void draw(){
       clear_matrix();
       for (int part = 0; part < body.lenght; part++){
-        matrix.drawPixel(body.parts[part].curr_coords[Y], body.parts[part].curr_coords[X], HIGH);}
+        matrix.drawPixel(body.parts[part].curr_coords[Y], body.parts[part].curr_coords[X], HIGH);
+      } 
       matrix.write();
     };    
 
@@ -273,7 +274,7 @@ void check_self_collision(){
 // Функция изменения направления движения змеи
 void change_direction(int x, int y){
   if (abs(x)){snake.move_direction[X]=x; snake.move_direction[Y]=0;};
-  if (abs(y)){snake.move_direction[Y]=y; snake.move_direction[X]=0;};
+  if (abs(y)){snake.move_direction[Y]=y; snake.move_direction[X]=0;};  
 }
 
 // Функция регистрации событии в игре
