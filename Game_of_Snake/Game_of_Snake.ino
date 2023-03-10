@@ -18,7 +18,7 @@ const int Y_pin = 1;
 const int debug_button = 5;
 
 
-int pinCS = 9;
+int pinCS = 9; // CLK - 15. DIN - 16.
 int numberOfHorizontalDisplays = 1;
 int numberOfVerticalDisplays = 1;
 
@@ -110,6 +110,8 @@ class Snake : public Printable{
         
         parts[lenght] = part;
         lenght++;
+        Serial.print("Length: ");
+        Serial.println(lenght);
       }
   
       void clear_body(){
@@ -169,11 +171,17 @@ class Snake : public Printable{
 
     // Функция добавления новой части тела
     void add_part(){
-      if (ready_to_prolong){
+      if (ready_to_prolong && got_aims_X.count() > 0 && got_aims_Y.count() > 0){
         int new_x = got_aims_X.pop();
         int new_y = got_aims_Y.pop();
+        
+        Serial.print("Added new part: ");
+        Serial.print(new_x);
+        Serial.print(" , ");
+        Serial.println(new_y);
+        
         body.add_part(new_x, new_y, false, true);
-        ready_to_prolong = false;
+        if (got_aims_X.count() == 0 && got_aims_Y.count() == 0) ready_to_prolong = false;
       }
     }
     
@@ -217,6 +225,11 @@ class AimScore {
 
     // Функция добавления пойманной цели в массив
     void add_aim_to_pool(){
+      Serial.print("Caught aim: ");
+      Serial.print(aim_dot[X]);
+      Serial.print(" , ");
+      Serial.println(aim_dot[Y]);
+      
       got_aims_X.push(aim_dot[X]);
       got_aims_Y.push(aim_dot[Y]);
     }
@@ -224,7 +237,7 @@ class AimScore {
     // Функция фиксации захвата цели
     void get_the_aim(){
       game_score++;
-      game_speed-= 5;
+      game_speed-= 2;
       disp.digit4(game_score, 1);
       add_aim_to_pool();
       has_aim = false;    
@@ -263,6 +276,7 @@ void listen_events(){
       game_over();
       aim.game_score = 0;
       snake.body.clear_body();
+      snake.ready_to_prolong = false;
     }
   }
 }
