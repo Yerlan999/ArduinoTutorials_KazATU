@@ -7,8 +7,8 @@
 const int X = 0;
 const int Y = 1;
 
-Queue<int> got_aims_X(10);
-Queue<int> got_aims_Y(10);
+Queue<int> got_aims_X;
+Queue<int> got_aims_Y;
 
 unsigned long lastTime = 0;
 
@@ -56,6 +56,8 @@ void game_over(){
   delay(1000);
   disp.digit4(0, 1);
   game_speed = 200;
+  got_aims_Y.clear();
+  got_aims_X.clear();
   Serial.println();
   Serial.println("New Game Started");
   Serial.println();
@@ -229,6 +231,7 @@ class AimScore {
 
     // Функция добавления пойманной цели в массив
     void add_aim_to_pool(){
+      Serial.println("");
       Serial.print("Caught aim: ");
       Serial.print(aim_dot[X]);
       Serial.print(" , ");
@@ -291,7 +294,7 @@ void setup() {
   Serial.begin(9600);
   matrix.setIntensity(4);
   clear_matrix();
-  disp.digit4(0, 1);
+  disp.digit4(aim.game_score, 1);
   Serial.println();
   Serial.println("New Game Started");
   Serial.println();
