@@ -56,6 +56,9 @@ void game_over(){
   delay(1000);
   disp.digit4(0, 1);
   game_speed = 200;
+  Serial.println();
+  Serial.println("New Game Started");
+  Serial.println();
 }
 
 class Snake : public Printable{
@@ -238,7 +241,6 @@ class AimScore {
     void get_the_aim(){
       game_score++;
       game_speed-= 2;
-      disp.digit4(game_score, 1);
       add_aim_to_pool();
       has_aim = false;    
     }
@@ -248,12 +250,31 @@ class AimScore {
 AimScore aim = AimScore();
 Snake snake = Snake();
 
+// Функция проверки столкновения с самим собой (змеи)
+void check_self_collision(){
+  for (int i = 2; i < snake.body.lenght; i ++){
+    if (snake.body.parts[0].curr_coords[X] == snake.body.parts[i].curr_coords[X] && snake.body.parts[0].curr_coords[Y] == snake.body.parts[i].curr_coords[Y])
+    {
+      for (int i = 0; i < 17; i++){
+        matrix.drawPixel(snake.body.parts[0].curr_coords[Y], snake.body.parts[0].curr_coords[X], i%2==0);
+        matrix.write();
+        delay(100);
+      }
+      
+      delay(3000);
+      game_over();
+      aim.game_score = 0;
+      snake.body.clear_body();
+      snake.ready_to_prolong = false;
+    }
+  }
+}
+
 // Функция изменения направления движения змеи
 void change_direction(int x, int y){
   if (abs(x)){snake.move_direction[X]=x; snake.move_direction[Y]=0;};
   if (abs(y)){snake.move_direction[Y]=y; snake.move_direction[X]=0;};
 }
-
 
 // Функция регистрации событии в игре
 void listen_events(){
@@ -261,24 +282,6 @@ void listen_events(){
   if (analogRead(X_pin) >= 923 && snake.move_direction[X] != -1) change_direction(1,0); 
   if (analogRead(Y_pin) <= 100 && snake.move_direction[Y] != -1) change_direction(0,1);     
   if (analogRead(Y_pin) >= 923 && snake.move_direction[Y] != 1) change_direction(0,-1);
-
-  // Голова столкнулась с целью
-  if (snake.body.parts[0].curr_coords[X] == aim.aim_dot[X] && snake.body.parts[0].curr_coords[Y] == aim.aim_dot[Y]) aim.get_the_aim();
-
-  // Хвост столкнулся с целью
-  if ((snake.body.parts[snake.body.lenght-1].curr_coords[X] == got_aims_X.peek() && snake.body.parts[snake.body.lenght-1].curr_coords[Y] == got_aims_Y.peek())) snake.ready_to_prolong = true;
-  // Хвост вышел из ячейки с целью
-  if ((snake.body.parts[snake.body.lenght-1].old_coords[X] == got_aims_X.peek() || snake.body.parts[snake.body.lenght-1].old_coords[Y] == got_aims_Y.peek())) snake.add_part();
-
-  for (int i = 2; i < snake.body.lenght; i ++){
-    if (snake.body.parts[0].curr_coords[X] == snake.body.parts[i].curr_coords[X] && snake.body.parts[0].curr_coords[Y] == snake.body.parts[i].curr_coords[Y])
-    {
-      game_over();
-      aim.game_score = 0;
-      snake.body.clear_body();
-      snake.ready_to_prolong = false;
-    }
-  }
 }
 
 void setup() {
@@ -288,13 +291,28 @@ void setup() {
   matrix.setIntensity(4);
   clear_matrix();
   disp.digit4(0, 1);
+  Serial.println();
+  Serial.println("New Game Started");
+  Serial.println();
 }
 
 void loop() {
   
   listen_events();
+  disp.digit4(aim.game_score, 1);
+  
   if ((millis() - lastTime) > game_speed) {
     snake.advance();
+    
+    // Голова столкнулась с целью
+    if (snake.body.parts[0].curr_coords[X] == aim.aim_dot[X] && snake.body.parts[0].curr_coords[Y] == aim.aim_dot[Y]) aim.get_the_aim();
+    // Хвост столкнулся с целью
+    if ((snake.body.parts[snake.body.lenght-1].curr_coords[X] == got_aims_X.peek() && snake.body.parts[snake.body.lenght-1].curr_coords[Y] == got_aims_Y.peek())) snake.ready_to_prolong = true;
+    // Хвост вышел из ячейки с целью
+    if ((snake.body.parts[snake.body.lenght-1].old_coords[X] == got_aims_X.peek() || snake.body.parts[snake.body.lenght-1].old_coords[Y] == got_aims_Y.peek())) snake.add_part();
+  
+    check_self_collision();
+    
     lastTime = millis();
   }
   snake.draw();
