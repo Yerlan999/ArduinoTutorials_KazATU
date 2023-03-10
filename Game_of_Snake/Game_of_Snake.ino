@@ -310,11 +310,25 @@ void loop() {
     
     // Голова столкнулась с целью
     if (snake.body.parts[0].curr_coords[X] == aim.aim_dot[X] && snake.body.parts[0].curr_coords[Y] == aim.aim_dot[Y]) aim.get_the_aim();
+    
     // Хвост столкнулся с целью
-    if ((snake.body.parts[snake.body.lenght-1].curr_coords[X] == got_aims_X.peek() && snake.body.parts[snake.body.lenght-1].curr_coords[Y] == got_aims_Y.peek())) snake.ready_to_prolong = true;
+    if ((snake.body.parts[snake.body.lenght-1].curr_coords[X] == got_aims_X.peek() && snake.body.parts[snake.body.lenght-1].curr_coords[Y] == got_aims_Y.peek()))
+    {
+      Serial.println("+");
+      Serial.print("The tail is in the: ");
+      Serial.print(snake.body.parts[snake.body.lenght-1].curr_coords[X]);
+      Serial.print(" , ");
+      Serial.println(snake.body.parts[snake.body.lenght-1].curr_coords[Y]);
+      snake.ready_to_prolong = true;
+    }
+    
     // Хвост вышел из ячейки с целью
-    if ((snake.body.parts[snake.body.lenght-1].old_coords[X] == got_aims_X.peek() || snake.body.parts[snake.body.lenght-1].old_coords[Y] == got_aims_Y.peek())) snake.add_part();
-  
+    if ((snake.body.parts[snake.body.lenght-1].old_coords[X] == got_aims_X.peek() || snake.body.parts[snake.body.lenght-1].old_coords[Y] == got_aims_Y.peek()) && snake.ready_to_prolong == true)
+    {
+      Serial.println("*");
+      snake.add_part();
+    }
+    
     check_self_collision();
     
     lastTime = millis();
@@ -328,5 +342,6 @@ void loop() {
   aim.draw_aim();
     
   if (digitalRead(debug_button)==LOW){
+    Serial.println(snake.body.lenght);
   }
 }
