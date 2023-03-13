@@ -54,12 +54,11 @@ void game_over(){
   delay(1000);
   clear_matrix();
   delay(1000);
-  disp.digit4(0, 1);
   game_speed = 200;
   got_aims_Y.clear();
   got_aims_X.clear();
   Serial.println();
-  Serial.println("New Game Started");
+  Serial.println("$$$$$$$$$$$$$$$$$$ NEW GAME $$$$$$$$$$$$$$$$$$");
   Serial.println();
 }
 
@@ -115,8 +114,9 @@ class Snake : public Printable{
         
         parts[lenght] = part;
         lenght++;
-        Serial.print("Length: ");
+        Serial.print("Current length is: ");
         Serial.println(lenght);
+        Serial.println("***************** # END # *****************");
       }
   
       void clear_body(){
@@ -231,7 +231,8 @@ class AimScore {
 
     // Функция добавления пойманной цели в массив
     void add_aim_to_pool(){
-      Serial.println("");
+      Serial.println();
+      Serial.println("***************** # START # *****************");
       Serial.print("Caught aim: ");
       Serial.print(aim_dot[X]);
       Serial.print(" , ");
@@ -265,6 +266,12 @@ void check_self_collision(){
         delay(100);
       }
       
+      for (int i = 0; i < snake.body.lenght+1; i++){
+        matrix.drawPixel(snake.body.parts[i].curr_coords[Y], snake.body.parts[i].curr_coords[X], LOW);
+        matrix.write();
+        delay(100);
+      }
+      
       delay(3000);
       game_over();
       aim.game_score = 0;
@@ -294,16 +301,16 @@ void setup() {
   Serial.begin(9600);
   matrix.setIntensity(4);
   clear_matrix();
-  disp.digit4(aim.game_score, 1);
+  disp.digit4showZero(aim.game_score, 100);
   Serial.println();
-  Serial.println("New Game Started");
+  Serial.println("$$$$$$$$$$$$$$$$$$ NEW GAME $$$$$$$$$$$$$$$$$$");
   Serial.println();
 }
 
 void loop() {
   
   listen_events();
-  disp.digit4(aim.game_score, 1);
+  disp.digit4showZero(aim.game_score, 100);
   
   if ((millis() - lastTime) > game_speed) {
     snake.advance();
@@ -323,7 +330,7 @@ void loop() {
     }
     
     // Хвост вышел из ячейки с целью
-    if ((snake.body.parts[snake.body.lenght-1].old_coords[X] == got_aims_X.peek() || snake.body.parts[snake.body.lenght-1].old_coords[Y] == got_aims_Y.peek()) && snake.ready_to_prolong == true)
+    if ((snake.body.parts[snake.body.lenght-1].curr_coords[X] != got_aims_X.peek() || snake.body.parts[snake.body.lenght-1].curr_coords[Y] != got_aims_Y.peek()) && snake.ready_to_prolong == true)
     {
       Serial.println("*");
       snake.add_part();
