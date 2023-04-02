@@ -309,10 +309,10 @@ void setup() {
 
 void loop() {
   
-  listen_events();
   disp.digit4showZero(aim.game_score, 100);
   
   if ((millis() - lastTime) > game_speed) {
+    listen_events();
     snake.advance();
     
     // Голова столкнулась с целью
