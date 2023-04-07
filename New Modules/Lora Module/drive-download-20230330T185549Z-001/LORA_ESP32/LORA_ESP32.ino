@@ -15,11 +15,14 @@ void setup() {
 void loop() {
   if(Serial.available() > 0){ // nhận dữ liệu từ bàn phím gửi tín hiệu đi
     String input = Serial.readString();
-    Serial2.println(input);     
+    Serial2.println(input); 
+    Serial.print("Sent: ");  
+    Serial.println(input);          
   }
  
   if(Serial2.available() > 1){
     String input = Serial2.readString();
+    Serial.print("Recieved: ");  
     Serial.println(input);    
   }
   delay(20);
