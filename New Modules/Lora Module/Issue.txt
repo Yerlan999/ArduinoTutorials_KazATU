@@ -1,0 +1,5 @@
+                SENDING   RECIEVING
+UNO - COM7        YES        YES
+MEGA - COM4       YES         NO
+
+
